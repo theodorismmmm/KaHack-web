@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KaHack v2 - Interactive Demo</title>
     <style>
         :root {
@@ -37,7 +37,7 @@
 
         /* --- TOP BAR --- */
         header {
-            padding: 20px 40px;
+            padding: 20px 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -61,12 +61,13 @@
         main {
             display: flex;
             flex: 1;
-            padding: 40px;
+            padding: 40px 5%;
             gap: 40px;
             max-width: 1400px;
             margin: 0 auto;
             width: 100%;
             align-items: center;
+            justify-content: center;
         }
 
         /* --- KAHACK SIMULATOR (LEFT) --- */
@@ -74,53 +75,80 @@
             flex: 1;
             display: flex;
             justify-content: center;
+            align-items: center;
+            width: 100%;
             animation: fadeIn 0.6s ease 0.1s backwards;
         }
 
         .k-ui-wrapper {
-            width: 380px; height: 500px;
+            width: 100%;
+            max-width: 400px; 
+            height: 550px; /* Taller to fit all features */
             background: rgba(10, 10, 10, 0.85);
             backdrop-filter: blur(15px);
             border: 1px solid var(--border);
-            borderRadius: 8px;
-            display: flex; flex-direction: column;
+            border-radius: 8px;
+            display: flex; 
+            flex-direction: column;
             box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05);
             overflow: hidden;
-            position: relative;
         }
 
         .k-header {
             padding: 12px 15px; border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; alignItems: center;
+            display: flex; justify-content: space-between; align-items: center;
+            flex-shrink: 0;
         }
         .k-title { font-weight: bold; letter-spacing: 1px; font-size: 12px; text-align: center; flex: 1; }
         
-        .k-body { display: flex; flex: 1; overflow: hidden; }
+        .k-body { 
+            display: flex; 
+            flex: 1; 
+            overflow: hidden; /* Contains the scrollable children */
+        }
         
         .k-sidebar {
-            width: 140px; border-right: 1px solid var(--border);
-            background: rgba(10,10,10,0.95); display: flex; flexDirection: column;
+            width: 140px; 
+            flex-shrink: 0; /* Prevents sidebar from squishing */
+            border-right: 1px solid var(--border);
+            background: rgba(10,10,10,0.95); 
+            display: flex; 
+            flex-direction: column;
+            overflow-y: auto; /* Allows scrolling if tabs overflow */
         }
+        
+        /* Custom scrollbar for simulator */
+        .k-sidebar::-webkit-scrollbar, .k-content-area::-webkit-scrollbar { width: 4px; }
+        .k-sidebar::-webkit-scrollbar-thumb, .k-content-area::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
         .k-menu-item {
-            padding: 12px 15px; border-bottom: 1px solid var(--border);
+            padding: 14px 15px; border-bottom: 1px solid var(--border);
             color: var(--muted); cursor: pointer; font-size: 10px;
             letter-spacing: 1px; text-transform: uppercase; transition: 0.2s;
         }
         .k-menu-item:hover { background: rgba(255,255,255,0.05); color: var(--text); padding-left: 20px; }
         .k-menu-item.active { background: rgba(255,255,255,0.1); color: var(--text); border-left: 3px solid #fff; font-weight: bold; }
 
-        .k-content-area { flex: 1; position: relative; padding: 15px; overflow-y: auto; }
+        .k-content-area { 
+            flex: 1; 
+            padding: 15px; 
+            overflow-y: auto; /* Independent scrolling for content */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
         
-        .k-section { border: 1px solid var(--border); border-radius: 6px; padding: 12px; background: rgba(15,15,15,0.6); margin-bottom: 10px; }
+        .k-section { border: 1px solid var(--border); border-radius: 6px; padding: 12px; background: rgba(15,15,15,0.6); flex-shrink: 0; }
         .k-section-title { font-size: 9px; color: var(--muted); margin-bottom: 10px; letter-spacing: 1px; font-weight: bold; }
         
-        .k-toggle { display: flex; justify-content: space-between; align-items: center; font-size: 10px; margin: 8px 0; padding: 6px 8px; border: 1px solid var(--border); border-radius: 4px; }
-        .k-switch { width: 28px; height: 14px; background: var(--border); border-radius: 14px; position: relative; pointer-events: none; }
+        .k-toggle { display: flex; justify-content: space-between; align-items: center; font-size: 10px; margin: 8px 0; padding: 8px; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; transition: border 0.2s; }
+        .k-toggle:hover { border-color: #555; }
+        .k-switch { width: 28px; height: 14px; background: var(--border); border-radius: 14px; position: relative; pointer-events: none; flex-shrink: 0;}
         .k-switch::after { content: ''; position: absolute; left: 2px; top: 2px; width: 10px; height: 10px; background: #fff; border-radius: 50%; transition: 0.2s; }
         .k-toggle.on .k-switch { background: var(--text); }
         .k-toggle.on .k-switch::after { transform: translateX(14px); background: #000; }
         
-        .k-btn { width: 100%; padding: 8px; background: transparent; border: 1px solid #555; color: #fff; border-radius: 4px; font-size: 10px; font-family: inherit; margin-top: 5px; cursor: pointer; }
+        .k-btn { width: 100%; padding: 10px; background: transparent; border: 1px solid #555; color: #fff; border-radius: 4px; font-size: 10px; font-weight: bold; font-family: inherit; margin-top: 5px; cursor: pointer; transition: 0.2s; }
         .k-btn:hover { background: #fff; color: #000; }
 
         /* --- INFO PANEL (RIGHT) --- */
@@ -130,6 +158,7 @@
             flex-direction: column;
             justify-content: center;
             max-width: 500px;
+            width: 100%;
         }
 
         .info-content {
@@ -143,24 +172,24 @@
         }
 
         .info-title {
-            font-size: 36px; font-weight: 900; margin-bottom: 20px; line-height: 1.2;
+            font-size: 32px; font-weight: 900; margin-bottom: 20px; line-height: 1.2;
             position: relative; display: inline-block;
         }
         
-        /* The typing effect applies to the title when it changes */
         .typing-effect {
             overflow: hidden; white-space: nowrap; border-right: 2px solid var(--text);
             animation: typewriter 1s steps(40, end), blink .75s step-end infinite;
         }
 
         .info-desc {
-            font-size: 16px; color: #aaaaaa; line-height: 1.6; margin-bottom: 30px;
+            font-size: 15px; color: #aaaaaa; line-height: 1.6; margin-bottom: 30px;
         }
 
         .info-feature-list { list-style: none; }
         .info-feature-list li {
-            margin-bottom: 12px; font-size: 14px; color: #dddddd;
+            margin-bottom: 14px; font-size: 14px; color: #dddddd;
             display: flex; align-items: flex-start; gap: 10px;
+            line-height: 1.4;
         }
         .info-feature-list li::before {
             content: '▹'; color: var(--accent); font-weight: bold;
@@ -168,10 +197,18 @@
 
         /* --- RESPONSIVE --- */
         @media (max-width: 900px) {
-            main { flex-direction: column; padding: 20px; }
+            main { flex-direction: column; padding: 20px 5%; gap: 30px; }
             .simulator-container { order: 2; width: 100%; }
-            .info-container { order: 1; text-align: center; align-items: center; margin-bottom: 30px; }
-            .info-feature-list li { text-align: left; }
+            .info-container { order: 1; text-align: left; align-items: flex-start; }
+            .info-title { font-size: 26px; }
+            .k-ui-wrapper { height: 500px; } /* Slightly shorter on mobile to fit screen */
+            .logo { font-size: 14px; }
+            .logo span { font-size: 9px; }
+        }
+        
+        @media (max-width: 400px) {
+            .k-sidebar { width: 110px; } /* Shrink sidebar on very small phones */
+            .k-menu-item { font-size: 9px; padding: 12px 10px; }
         }
     </style>
 </head>
@@ -213,7 +250,7 @@
 
         <div class="info-container">
             <div class="info-content" id="info-panel">
-                <span class="info-tag">> SYSTEM_OVERVIEW</span>
+                <span class="info-tag" id="info-tag">> SYSTEM_OVERVIEW</span>
                 <h1 class="info-title typing-effect" id="info-title">Welcome to KaHack v2</h1>
                 <p class="info-desc" id="info-desc">Select a tab from the interactive UI simulator on the left to explore the features, capabilities, and mechanics of the KaHack v2 neural engine.</p>
                 <ul class="info-feature-list" id="info-features">
@@ -312,70 +349,14 @@
                 welcome_f3: "Plattformübergreifend (iOS Shortcuts, Tampermonkey).",
                 
                 tabs: {
-                    dash: {
-                        tag: "> MODUL: DASHBOARD",
-                        title: "Kontrollzentrum",
-                        desc: "Das Dashboard ist dein zentraler Knotenpunkt. Es liefert Echtzeit-Diagnosen zur aktiven Spielsitzung.",
-                        f1: "Live-Quiz-Analyse: Zeigt UUID und Fragenanzahl sofort an.",
-                        f2: "AdBlock-Matrix: Entfernt Werbung und optimiert das Layout.",
-                        f3: "Schnellschalter: Aktiviere Auto-Answer oder Holo-Box sofort."
-                    },
-                    tools: {
-                        tag: "> MODUL: VERBINDUNG",
-                        title: "Sichere Hooks",
-                        desc: "KaHack v2 verlässt sich nicht auf einfaches DOM-Scraping. Es fängt die Kahoot-API direkt ab, um Rohdaten zu extrahieren.",
-                        f1: "UUID-Vorabtest: Überprüft die Existenz des Quiz vor der Injektion.",
-                        f2: "Auto-Hook: Findet die versteckte Spiel-ID automatisch im Fenster.",
-                        f3: "Privater Bypass: Kann zwischengespeicherte lokale Quizdaten lesen."
-                    },
-                    sheet: {
-                        tag: "> MODUL: SPICKZETTEL",
-                        title: "Der ultimative Ausweg",
-                        desc: "Wenn du im 'Klassischen Modus' spielst, bei dem der Projektor die Fragen verbirgt, rettet dich der Spickzettel.",
-                        f1: "Erstellt eine vollständige, scrollbare Liste aller Fragen und Antworten.",
-                        f2: "Entfernt HTML-Tags für einfaches Lesen.",
-                        f3: "Aktualisiert sich dynamisch, sobald eine UUID verbunden ist."
-                    },
-                    mods: {
-                        tag: "> MODUL: MOD-MENÜ",
-                        title: "Cookie Clicker Engine",
-                        desc: "KaHack ist nicht nur für Quizze. Es bietet native Unterstützung für das Injizieren von Speicherdaten in Browserspiele.",
-                        f1: "Injiziere benutzerdefinierte Mengen an Cookies (Millionen, Milliarden).",
-                        f2: "Umgeht das Anti-Cheat-System, indem die interne Game.Earn() Logik aufgerufen wird.",
-                        f3: "Beinhaltet einen integrierten 10ms Auto-Clicker."
-                    },
-                    ai: {
-                        tag: "> MODUL: MINI KI",
-                        title: "Integrierte Intelligenz",
-                        desc: "Steckst du bei einer schwierigen Frage fest? Frage eine KI direkt über das Overlay, ohne einen neuen Tab zu öffnen.",
-                        f1: "Unterstützt PayPerQ (GPT-4-Turbo), OpenAI und Google Gemini.",
-                        f2: "Speichert deine API-Schlüssel sicher lokal auf deinem Gerät.",
-                        f3: "Gesprächsfenster direkt in die Benutzeroberfläche integriert."
-                    },
-                    js: {
-                        tag: "> MODUL: ERWEITERTES JS",
-                        title: "Native Code-Ausführung",
-                        desc: "Für fortgeschrittene Benutzer dient der JS-Tab als offene Hintertür in das DOM der Webseite.",
-                        f1: "Schreibe und führe rohes JavaScript im laufenden Betrieb aus.",
-                        f2: "Umgeht Content Security Policies durch temporäre Skript-Tags.",
-                        f3: "Perfekt zum Testen eigener Exploits oder CSS-Modifikationen."
-                    },
-                    dev: {
-                        tag: "> MODUL: INSPEKTOR",
-                        title: "Mobile Dev-Tools",
-                        desc: "Wolltest du schon immer ein Element auf einem iPhone inspizieren? KaHack integriert Eruda für vollen Entwicklerzugriff.",
-                        f1: "Injiziert eine schwebende Konsole in den Browser.",
-                        f2: "Netzwerkanfragen anzeigen, lokalen Speicher bearbeiten und CSS ändern.",
-                        f3: "Speziell optimiert für mobile Touch-Interfaces."
-                    },
-                    set: {
-                        tag: "> MODUL: EINSTELLUNGEN",
-                        title: "Engine-Konfiguration",
-                        desc: "Passe genau an, wie die KaHack-Engine mit dem Spiel und deinem Bildschirm interagiert.",
-                        f1: "Passe die Auto-Answer-Verzögerung an (0ms bis 3000ms), um Entdeckung zu vermeiden.",
-                        f2: "Aktiviere den 'Stealth-Modus', um die Deckkraft der UI auf 30% zu senken.",
-                        f3: "Verstecke die gesamte native Spiel-UI für ein ablenkungsfreies Erlebnis."
-                    }
+                    dash: { tag: "> MODUL: DASHBOARD", title: "Kontrollzentrum", desc: "Das Dashboard ist dein zentraler Knotenpunkt. Es liefert Echtzeit-Diagnosen zur aktiven Spielsitzung.", f1: "Live-Quiz-Analyse: Zeigt UUID und Fragenanzahl sofort an.", f2: "AdBlock-Matrix: Entfernt Werbung und optimiert das Layout.", f3: "Schnellschalter: Aktiviere Auto-Answer oder Holo-Box sofort." },
+                    tools: { tag: "> MODUL: VERBINDUNG", title: "Sichere Hooks", desc: "KaHack v2 verlässt sich nicht auf einfaches DOM-Scraping. Es fängt die Kahoot-API direkt ab, um Rohdaten zu extrahieren.", f1: "UUID-Vorabtest: Überprüft die Existenz des Quiz vor der Injektion.", f2: "Auto-Hook: Findet die versteckte Spiel-ID automatisch im Fenster.", f3: "Privater Bypass: Kann zwischengespeicherte lokale Quizdaten lesen." },
+                    sheet: { tag: "> MODUL: SPICKZETTEL", title: "Der ultimative Ausweg", desc: "Wenn du im 'Klassischen Modus' spielst, bei dem der Projektor die Fragen verbirgt, rettet dich der Spickzettel.", f1: "Erstellt eine vollständige, scrollbare Liste aller Fragen und Antworten.", f2: "Entfernt HTML-Tags für einfaches Lesen.", f3: "Aktualisiert sich dynamisch, sobald eine UUID verbunden ist." },
+                    mods: { tag: "> MODUL: MOD-MENÜ", title: "Cookie Clicker Engine", desc: "KaHack ist nicht nur für Quizze. Es bietet native Unterstützung für das Injizieren von Speicherdaten in Browserspiele.", f1: "Injiziere benutzerdefinierte Mengen an Cookies (Millionen, Milliarden).", f2: "Umgeht das Anti-Cheat-System, indem die interne Game.Earn() Logik aufgerufen wird.", f3: "Beinhaltet einen integrierten 10ms Auto-Clicker." },
+                    ai: { tag: "> MODUL: MINI KI", title: "Integrierte Intelligenz", desc: "Steckst du bei einer schwierigen Frage fest? Frage eine KI direkt über das Overlay, ohne einen neuen Tab zu öffnen.", f1: "Unterstützt PayPerQ (GPT-4-Turbo), OpenAI und Google Gemini.", f2: "Speichert deine API-Schlüssel sicher lokal auf deinem Gerät.", f3: "Gesprächsfenster direkt in die Benutzeroberfläche integriert." },
+                    js: { tag: "> MODUL: ERWEITERTES JS", title: "Native Code-Ausführung", desc: "Für fortgeschrittene Benutzer dient der JS-Tab als offene Hintertür in das DOM der Webseite.", f1: "Schreibe und führe rohes JavaScript im laufenden Betrieb aus.", f2: "Umgeht Content Security Policies durch temporäre Skript-Tags.", f3: "Perfekt zum Testen eigener Exploits oder CSS-Modifikationen." },
+                    dev: { tag: "> MODUL: INSPEKTOR", title: "Mobile Dev-Tools", desc: "Wolltest du schon immer ein Element auf einem iPhone inspizieren? KaHack integriert Eruda für vollen Entwicklerzugriff.", f1: "Injiziert eine schwebende Konsole in den Browser.", f2: "Netzwerkanfragen anzeigen, lokalen Speicher bearbeiten und CSS ändern.", f3: "Speziell optimiert für mobile Touch-Interfaces." },
+                    set: { tag: "> MODUL: EINSTELLUNGEN", title: "Engine-Konfiguration", desc: "Passe genau an, wie die KaHack-Engine mit dem Spiel und deinem Bildschirm interagiert.", f1: "Passe die Auto-Answer-Verzögerung an (0ms bis 3000ms), um Entdeckung zu vermeiden.", f2: "Aktiviere den 'Stealth-Modus', um die Deckkraft der UI auf 30% zu senken.", f3: "Verstecke die gesamte native Spiel-UI für ein ablenkungsfreies Erlebnis." }
                 }
             },
             es: {
@@ -387,88 +368,86 @@
                 welcome_f3: "Soporte multiplataforma (iOS Shortcuts, Tampermonkey).",
                 
                 tabs: {
-                    dash: {
-                        tag: "> MÓDULO: PANEL",
-                        title: "Centro de Control",
-                        desc: "El Panel actúa como tu centro de inteligencia. Proporciona diagnósticos en tiempo real sobre la sesión de juego activa.",
-                        f1: "Análisis de Quiz en vivo: Ve UUID y recuentos de preguntas al instante.",
-                        f2: "Matriz AdBlock: Alterna los flujos de diseño para eliminar el espacio de anuncios.",
-                        f3: "Alternadores Rápidos: Activa Auto-Respuesta o Holo-Box al instante."
-                    },
-                    tools: {
-                        tag: "> MÓDULO: CONEXIÓN",
-                        title: "Ganchos de Seguridad",
-                        desc: "KaHack v2 intercepta directamente la API de Kahoot para extraer datos crudos del quiz antes de que se muestre en tu pantalla.",
-                        f1: "Prueba previa de UUID: Valida la existencia del quiz antes de inyectar.",
-                        f2: "Auto-Hook: Encuentra automáticamente el ID del juego oculto.",
-                        f3: "Bypass Privado: Capaz de leer datos de quiz locales en caché."
-                    },
-                    sheet: {
-                        tag: "> MÓDULO: CHULETA",
-                        title: "El Respaldo Definitivo",
-                        desc: "Si estás jugando en 'Modo Clásico' donde el proyector oculta las preguntas, la Chuleta te salva.",
-                        f1: "Genera una lista completa y desplazable de todas las preguntas y respuestas.",
-                        f2: "Elimina las etiquetas HTML para una lectura fácil.",
-                        f3: "Se actualiza dinámicamente en el momento en que se conecta un UUID."
-                    },
-                    mods: {
-                        tag: "> MÓDULO: MODS DE JUEGO",
-                        title: "Motor de Cookie Clicker",
-                        desc: "KaHack no es solo para cuestionarios. Incluye soporte nativo para inyectar datos de guardado directamente en juegos de navegador.",
-                        f1: "Inyecta cantidades personalizadas de galletas (Millones, Billones).",
-                        f2: "Evita el anti-trampas llamando a la lógica interna de Game.Earn().",
-                        f3: "Incluye un Auto-Clicker de 10ms incorporado."
-                    },
-                    ai: {
-                        tag: "> MÓDULO: MINI IA",
-                        title: "Inteligencia Integrada",
-                        desc: "¿Atascado en una pregunta difícil? Consulta a una IA directamente desde la interfaz sin abrir una nueva pestaña.",
-                        f1: "Soporta PayPerQ (GPT-4-Turbo), OpenAI y Google Gemini.",
-                        f2: "Almacena de forma segura tus claves API localmente en tu dispositivo.",
-                        f3: "Ventana de memoria conversacional integrada en la interfaz."
-                    },
-                    js: {
-                        tag: "> MÓDULO: JS AVANZADO",
-                        title: "Ejecución de Código Nativo",
-                        desc: "Para usuarios avanzados, la pestaña JS actúa como una puerta trasera abierta al DOM de la página web.",
-                        f1: "Escribe y ejecuta JavaScript puro sobre la marcha.",
-                        f2: "Evita las Políticas de Seguridad de Contenido inyectando scripts temporales.",
-                        f3: "Perfecto para probar exploits personalizados o modificaciones CSS."
-                    },
-                    dev: {
-                        tag: "> MÓDULO: INSPECTOR",
-                        title: "Herramientas Dev Móviles",
-                        desc: "¿Alguna vez necesitaste inspeccionar un elemento en un iPhone? KaHack integra Eruda para darte acceso de desarrollador en cualquier lugar.",
-                        f1: "Inyecta una consola flotante y ligera en el navegador.",
-                        f2: "Ver solicitudes de red, editar almacenamiento local y modificar CSS.",
-                        f3: "Optimizado específicamente para interfaces táctiles móviles."
-                    },
-                    set: {
-                        tag: "> MÓDULO: AJUSTES",
-                        title: "Configuración del Motor",
-                        desc: "Ajusta cómo el motor neuronal KaHack interactúa con el juego y tu pantalla.",
-                        f1: "Ajusta el retraso de Auto-Respuesta (0ms a 3000ms) para evitar detección.",
-                        f2: "Activa el 'Modo Sigilo' para reducir la opacidad de la interfaz al 30%.",
-                        f3: "Oculta toda la interfaz nativa del juego para una experiencia sin distracciones."
-                    }
+                    dash: { tag: "> MÓDULO: PANEL", title: "Centro de Control", desc: "El Panel actúa como tu centro de inteligencia. Proporciona diagnósticos en tiempo real sobre la sesión de juego activa.", f1: "Análisis de Quiz en vivo: Ve UUID y recuentos de preguntas al instante.", f2: "Matriz AdBlock: Alterna los flujos de diseño para eliminar el espacio de anuncios.", f3: "Alternadores Rápidos: Activa Auto-Respuesta o Holo-Box al instante." },
+                    tools: { tag: "> MÓDULO: CONEXIÓN", title: "Ganchos de Seguridad", desc: "KaHack v2 intercepta directamente la API de Kahoot para extraer datos crudos del quiz antes de que se muestre en tu pantalla.", f1: "Prueba previa de UUID: Valida la existencia del quiz antes de inyectar.", f2: "Auto-Hook: Encuentra automáticamente el ID del juego oculto.", f3: "Bypass Privado: Capaz de leer datos de quiz locales en caché." },
+                    sheet: { tag: "> MÓDULO: CHULETA", title: "El Respaldo Definitivo", desc: "Si estás jugando en 'Modo Clásico' donde el proyector oculta las preguntas, la Chuleta te salva.", f1: "Genera una lista completa y desplazable de todas las preguntas y respuestas.", f2: "Elimina las etiquetas HTML para una lectura fácil.", f3: "Se actualiza dinámicamente en el momento en que se conecta un UUID." },
+                    mods: { tag: "> MÓDULO: MODS DE JUEGO", title: "Motor de Cookie Clicker", desc: "KaHack no es solo para cuestionarios. Incluye soporte nativo para inyectar datos de guardado directamente en juegos de navegador.", f1: "Inyecta cantidades personalizadas de galletas (Millones, Billones).", f2: "Evita el anti-trampas llamando a la lógica interna de Game.Earn().", f3: "Incluye un Auto-Clicker de 10ms incorporado." },
+                    ai: { tag: "> MÓDULO: MINI IA", title: "Inteligencia Integrada", desc: "¿Atascado en una pregunta difícil? Consulta a una IA directamente desde la interfaz sin abrir una nueva pestaña.", f1: "Soporta PayPerQ (GPT-4-Turbo), OpenAI y Google Gemini.", f2: "Almacena de forma segura tus claves API localmente en tu dispositivo.", f3: "Ventana de memoria conversacional integrada en la interfaz." },
+                    js: { tag: "> MÓDULO: JS AVANZADO", title: "Ejecución de Código Nativo", desc: "Para usuarios avanzados, la pestaña JS actúa como una puerta trasera abierta al DOM de la página web.", f1: "Escribe y ejecuta JavaScript puro sobre la marcha.", f2: "Evita las Políticas de Seguridad de Contenido inyectando scripts temporales.", f3: "Perfecto para probar exploits personalizados o modificaciones CSS." },
+                    dev: { tag: "> MÓDULO: INSPECTOR", title: "Herramientas Dev Móviles", desc: "¿Alguna vez necesitaste inspeccionar un elemento en un iPhone? KaHack integra Eruda para darte acceso de desarrollador en cualquier lugar.", f1: "Inyecta una consola flotante y ligera en el navegador.", f2: "Ver solicitudes de red, editar almacenamiento local y modificar CSS.", f3: "Optimizado específicamente para interfaces táctiles móviles." },
+                    set: { tag: "> MÓDULO: AJUSTES", title: "Configuración del Motor", desc: "Ajusta cómo el motor neuronal KaHack interactúa con el juego y tu pantalla.", f1: "Ajusta el retraso de Auto-Respuesta (0ms a 3000ms) para evitar detección.", f2: "Activa el 'Modo Sigilo' para reducir la opacidad de la interfaz al 30%.", f3: "Oculta toda la interfaz nativa del juego para una experiencia sin distracciones." }
                 }
             }
         };
 
         // --- STATE ---
         let currentLang = 'en';
-        let currentTab = null; // null means welcome screen
+        let currentTab = null;
 
         // --- UI SIMULATOR CONTENT INJECTOR ---
         const simContent = {
-            dash: `<div class="k-section"><div class="k-section-title">INTELLIGENCE</div><div style="font-size:10px; color:#888;">UUID: <span style="color:#fff;">a1b2c3d4...</span><br>Q's: <span style="color:#fff;">15</span></div></div><div class="k-section"><div class="k-section-title">FILTERS</div><div class="k-toggle"><span>AdBlock Matrix</span><div class="k-switch"></div></div></div>`,
-            tools: `<div class="k-section"><div class="k-section-title">GAME CONNECTION</div><input type="text" placeholder="URL or UUID..." style="width:100%; padding:8px; background:transparent; border:1px solid #555; color:#fff; font-family:monospace; font-size:10px; border-radius:4px;"><button class="k-btn">PRE-TEST & FETCH</button><button class="k-btn">AUTO-HOOK</button></div>`,
-            sheet: `<div class="k-section"><div class="k-section-title">ANSWERS</div><div style="height:150px; overflow-y:auto; font-size:10px; color:#ddd;"><div style="margin-bottom:8px; border-bottom:1px solid #333; padding-bottom:4px;"><b style="color:#fff;">Q1</b><br>What is 2+2?<br><span style="color:#fff;">→ 4</span></div><div style="margin-bottom:8px; border-bottom:1px solid #333; padding-bottom:4px;"><b style="color:#fff;">Q2</b><br>Capital of France?<br><span style="color:#fff;">→ Paris</span></div></div></div>`,
-            mods: `<div class="k-section"><div class="k-section-title">COOKIE CLICKER</div><div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" placeholder="Amt" style="width:50%; padding:6px; background:transparent; border:1px solid #555; color:#fff; font-family:monospace; font-size:10px; border-radius:4px;"><select style="width:50%; padding:6px; background:#000; border:1px solid #555; color:#fff; font-family:monospace; font-size:10px; border-radius:4px;"><option>Millions</option></select></div><button class="k-btn">INJECT</button><div class="k-toggle"><span>Auto Clicker</span><div class="k-switch"></div></div></div>`,
-            ai: `<div class="k-section" style="height:100%; display:flex; flex-direction:column;"><select style="width:100%; padding:6px; background:#000; border:1px solid #555; color:#fff; font-family:monospace; font-size:10px; border-radius:4px; margin-bottom:5px;"><option>PayPerQ</option></select><div style="flex:1; border:1px solid #555; border-radius:4px; padding:8px; font-size:10px; color:#888; margin-bottom:5px;">Waiting for query...</div><textarea placeholder="Ask AI..." style="height:40px; background:transparent; border:1px solid #555; color:#fff; font-family:monospace; font-size:10px; border-radius:4px; padding:6px; resize:none;"></textarea><button class="k-btn">SEND</button></div>`,
-            js: `<div class="k-section"><div class="k-section-title">SCRIPT INJECTION</div><textarea placeholder="// Code here..." style="width:100%; height:120px; background:transparent; border:1px solid #555; color:#fff; font-family:monospace; font-size:10px; border-radius:4px; padding:8px; resize:none;"></textarea><button class="k-btn">EXECUTE</button></div>`,
-            dev: `<div class="k-section"><div class="k-section-title">DEVELOPER TOOLS</div><p style="font-size:10px; color:#888; margin-bottom:10px;">Injects mobile console (Eruda).</p><button class="k-btn">LAUNCH INSPECTOR</button></div>`,
-            set: `<div class="k-section"><div class="k-section-title">ENGINE</div><div class="k-toggle on"><span>Auto Answer</span><div class="k-switch"></div></div><div class="k-toggle on"><span>Holo Box</span><div class="k-switch"></div></div><div class="k-toggle"><span>Tap Box</span><div class="k-switch"></div></div><div style="font-size:9px; color:#888; margin-top:10px;">DELAY: <span style="color:#fff;">500ms</span></div><input type="range" style="width:100%; margin-top:5px;"></div>`
+            dash: `
+                <div class="k-section">
+                    <div class="k-section-title">INTELLIGENCE</div>
+                    <div style="font-size:10px; color:#888;">UUID: <span style="color:#fff;">a1b2c3d4...</span><br><br>Q's: <span style="color:#fff;">15</span></div>
+                </div>
+                <div class="k-section">
+                    <div class="k-section-title">FILTERS</div>
+                    <div class="k-toggle"><span>AdBlock Matrix</span><div class="k-switch"></div></div>
+                </div>`,
+            tools: `
+                <div class="k-section">
+                    <div class="k-section-title">GAME CONNECTION</div>
+                    <input type="text" placeholder="URL or UUID..." style="width:100%; padding:10px; background:transparent; border:1px solid #555; color:#fff; font-family:monospace; font-size:10px; border-radius:4px;">
+                    <button class="k-btn">PRE-TEST & FETCH</button>
+                    <button class="k-btn">AUTO-HOOK</button>
+                </div>`,
+            sheet: `
+                <div class="k-section" style="display:flex; flex-direction:column; flex:1;">
+                    <div class="k-section-title">ANSWERS</div>
+                    <div style="flex:1; overflow-y:auto; font-size:10px; color:#ddd; padding-right:5px;">
+                        <div style="margin-bottom:12px; border-bottom:1px solid #333; padding-bottom:8px;"><b style="color:#fff;">Q1</b><br><span style="color:#888;">What is 2+2?</span><br><span style="color:#fff; font-weight:bold;">→ 4</span></div>
+                        <div style="margin-bottom:12px; border-bottom:1px solid #333; padding-bottom:8px;"><b style="color:#fff;">Q2</b><br><span style="color:#888;">Capital of France?</span><br><span style="color:#fff; font-weight:bold;">→ Paris</span></div>
+                    </div>
+                </div>`,
+            mods: `
+                <div class="k-section">
+                    <div class="k-section-title">COOKIE CLICKER</div>
+                    <div style="display:flex; gap:8px; margin-bottom:8px;">
+                        <input type="text" placeholder="Amt" style="width:50%; padding:8px; background:transparent; border:1px solid #555; color:#fff; font-family:monospace; font-size:10px; border-radius:4px;">
+                        <select style="width:50%; padding:8px; background:#000; border:1px solid #555; color:#fff; font-family:monospace; font-size:10px; border-radius:4px;"><option>Millions</option></select>
+                    </div>
+                    <button class="k-btn">INJECT</button>
+                    <div class="k-toggle" style="margin-top:15px;"><span>Auto Clicker</span><div class="k-switch"></div></div>
+                </div>`,
+            ai: `
+                <div class="k-section" style="flex:1; display:flex; flex-direction:column;">
+                    <select style="width:100%; padding:8px; background:#000; border:1px solid #555; color:#fff; font-family:monospace; font-size:10px; border-radius:4px; margin-bottom:10px;"><option>PayPerQ</option></select>
+                    <div style="flex:1; border:1px solid #555; border-radius:4px; padding:10px; font-size:10px; color:#888; margin-bottom:10px; overflow-y:auto;">Waiting for query...</div>
+                    <textarea placeholder="Ask AI..." style="height:50px; background:transparent; border:1px solid #555; color:#fff; font-family:monospace; font-size:10px; border-radius:4px; padding:8px; resize:none;"></textarea>
+                    <button class="k-btn">SEND</button>
+                </div>`,
+            js: `
+                <div class="k-section" style="flex:1; display:flex; flex-direction:column;">
+                    <div class="k-section-title">SCRIPT INJECTION</div>
+                    <textarea placeholder="// Code here..." style="width:100%; flex:1; min-height:150px; background:transparent; border:1px solid #555; color:#fff; font-family:monospace; font-size:10px; border-radius:4px; padding:10px; resize:none;"></textarea>
+                    <button class="k-btn">EXECUTE</button>
+                </div>`,
+            dev: `
+                <div class="k-section">
+                    <div class="k-section-title">DEVELOPER TOOLS</div>
+                    <p style="font-size:10px; color:#888; margin-bottom:15px; line-height:1.4;">Injects mobile console (Eruda) directly into the current webpage.</p>
+                    <button class="k-btn">LAUNCH INSPECTOR</button>
+                </div>`,
+            set: `
+                <div class="k-section">
+                    <div class="k-section-title">ENGINE</div>
+                    <div class="k-toggle on"><span>Auto Answer</span><div class="k-switch"></div></div>
+                    <div class="k-toggle on"><span>Holo Box</span><div class="k-switch"></div></div>
+                    <div class="k-toggle"><span>Tap Box</span><div class="k-switch"></div></div>
+                    <div style="font-size:9px; color:#888; margin-top:15px;">DELAY: <span style="color:#fff;">500ms</span></div>
+                    <input type="range" style="width:100%; margin-top:8px;">
+                </div>`
         };
 
         const simContentArea = document.getElementById('sim-content');
@@ -478,9 +457,8 @@
             const panel = document.getElementById('info-panel');
             const data = i18n[currentLang];
             
-            // Retrigger animation
             panel.style.animation = 'none';
-            panel.offsetHeight; /* trigger reflow */
+            panel.offsetHeight; 
             panel.style.animation = 'slideInRight 0.4s ease forwards';
 
             let tag, title, desc, f1, f2, f3;
@@ -494,10 +472,8 @@
                 f1 = tabData.f1; f2 = tabData.f2; f3 = tabData.f3;
             }
 
-            // Update DOM
-            document.querySelector('.info-tag').textContent = tag;
+            document.getElementById('info-tag').textContent = tag;
             
-            // Reapply typing animation to title
             const titleEl = document.getElementById('info-title');
             titleEl.textContent = title;
             titleEl.classList.remove('typing-effect');
@@ -505,12 +481,10 @@
             titleEl.classList.add('typing-effect');
 
             document.getElementById('info-desc').textContent = desc;
-            
-            const featuresList = document.getElementById('info-features');
-            featuresList.innerHTML = `<li>${f1}</li><li>${f2}</li><li>${f3}</li>`;
+            document.getElementById('info-features').innerHTML = `<li>${f1}</li><li>${f2}</li><li>${f3}</li>`;
         }
 
-        // Language Switcher Listeners
+        // Language Switcher
         document.querySelectorAll('.lang-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
@@ -520,18 +494,15 @@
             });
         });
 
-        // UI Simulator Click Listeners
+        // UI Simulator Navigation
         document.querySelectorAll('.k-menu-item').forEach(item => {
             item.addEventListener('click', (e) => {
-                // UI Update
                 document.querySelectorAll('.k-menu-item').forEach(i => i.classList.remove('active'));
                 e.target.classList.add('active');
                 
-                // Content Update
                 currentTab = e.target.dataset.tab;
                 simContentArea.innerHTML = simContent[currentTab];
 
-                // Fake toggle animations inside simulator
                 simContentArea.querySelectorAll('.k-toggle').forEach(t => {
                     t.onclick = () => t.classList.toggle('on');
                 });
@@ -540,8 +511,8 @@
             });
         });
 
-        // Initialize empty state
-        simContentArea.innerHTML = `<div style="color:#555; text-align:center; margin-top:50px; font-size:12px; font-family:monospace;">Select a module to inspect...</div>`;
+        // Initial State
+        simContentArea.innerHTML = `<div style="color:#555; text-align:center; margin-top:80px; font-size:12px; font-family:monospace;">Select a module from the sidebar...</div>`;
 
     </script>
 </body>
